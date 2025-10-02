@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Axiom Core — Nexus Alpha (PT/EN)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{
+    --bg1:#030316;
+    --bg2:#071028;
+    --neon:#00fff2;
+    --neon-2:#6b5bff;
+    --muted:#9fb3bf;
+    --card: rgba(255,255,255,0.03);
+    --glass: rgba(255,255,255,0.03);
+    --accent:#6b5bff;
+    --panel: rgba(255,255,255,0.02);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:radial-gradient(circle at 10% 10%, rgba(0,255,242,0.02), transparent 12%), linear-gradient(180deg,var(--bg1),var(--bg2));color:#e6f7f6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:18px auto;padding:18px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:68px;height:68px;border-radius:12px;background:linear-gradient(135deg,var(--neon),var(--neon-2));display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(107,91,255,0.06);animation:spin 15s linear infinite}
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .logo svg{width:44px;height:44px}
+  h1{margin:0;font-size:20px}
+  .tag{color:var(--muted);font-size:13px}
+  nav{display:flex;gap:8px;align-items:center}
+  .lang-toggle{display:flex;gap:6px;align-items:center}
+  .lang-btn{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:6px 10px;border-radius:8px;color:var(--muted);cursor:pointer}
+  .lang-btn.active{background:linear-gradient(90deg,var(--neon),var(--neon-2));color:#041426;border:none}
+  .btn{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:9px;color:var(--muted);cursor:pointer;font-weight:700}
+  .btn.primary{background:linear-gradient(90deg,var(--neon),var(--neon-2));color:#041426;border:none;box-shadow:0 10px 30px rgba(0,255,242,0.06)}
+  main{margin-top:14px}
+  .hero{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:18px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);display:flex;gap:18px;align-items:center}
+  .hero-left{flex:1}
+  .hero-right{width:360px}
+  .lead{color:var(--muted);margin-top:8px}
+  .kpis{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+  .kpi{background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;min-width:150px}
+  section.card{margin-top:14px;padding:14px;background:var(--panel);border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+  .pilares{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+  @media(max-width:900px){.pilares{grid-template-columns:1fr}.hero-right{width:100%}}
+  label{display:block;font-size:13px;color:var(--muted);margin-top:8px}
+  input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.02);color:inherit}
+  input[type=range]{width:200px}
+  input[type=number]{background:rgba(255,255,255,0.035)}
+  .sim-grid{display:grid;grid-template-columns:320px 1fr 320px;gap:14px}
+  @media(max-width:1100px){.sim-grid{grid-template-columns:1fr}}
+  .stat-big{font-size:18px;font-weight:800}
+  .chart-box{height:200px;border-radius:12px;background:linear-gradient(135deg,#041122,#072b18);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.06);font-weight:700}
+  .small{font-size:13px;color:var(--muted)}
+  .pill{background:rgba(255,255,255,0.04);padding:6px 10px;border-radius:999px;font-weight:700}
+  .inv-list{max-height:240px;overflow:auto;margin-top:10px}
+  .inv-row{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;margin-bottom:8px;background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent)}
+  .toast{position:fixed;left:50%;top:24px;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);display:none;color:#dff}
+  .assumptions{margin-top:12px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);color:var(--muted);display:none}
+  footer.small{color:var(--muted);font-size:13px;margin-top:18px;text-align:center}
+</style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true" id="logoWrap">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="14" fill="#041025"/><circle cx="50" cy="50" r="34" fill="#00fff2" opacity="0.08"/><text x="50" y="58" fill="#00fff2" font-family="Segoe UI, Roboto, Arial" font-size="28" font-weight="700" text-anchor="middle">AX</text></svg>
+        </div>
+        <div>
+          <h1><span class="lang-pt">Axiom Core</span><span class="lang-en" style="display:none">Axiom Core</span></h1>
+          <div class="tag"><span class="lang-pt">Simulador Global Científico — Transparente & Auditável</span><span class="lang-en" style="display:none">Global Scientific Simulator — Transparent & Auditable</span></div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="lang-toggle" aria-hidden="false">
+          <button id="btnPT" class="lang-btn active">PT</button>
+          <button id="btnEN" class="lang-btn">EN</button>
+        </div>
+        <div style="width:12px"></div>
+        <button class="btn" onclick="scrollToSection('home')"><span class="lang-pt">Home</span><span class="lang-en" style="display:none">Home</span></button>
+        <button class="btn" onclick="scrollToSection('problema')"><span class="lang-pt">Problema</span><span class="lang-en" style="display:none">Problem</span></button>
+        <button class="btn primary" onclick="scrollToSection('sim')"><span class="lang-pt">Simulador</span><span class="lang-en" style="display:none">Simulator</span></button>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <main id="home" class="hero" aria-label="Resumo">
+      <div class="hero-left">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-weight:800;font-size:18px"><span class="lang-pt">Decisões Globais com Alta Fidelidade</span><span class="lang-en" style="display:none">High-Fidelity Global Decisions</span></div>
+          <div class="pill">Nexus Alpha</div>
+        </div>
+        <div class="lead">
+          <span class="lang-pt">Painel que cruza dados abertos globais com um motor de simulação determinístico — tudo auditável e exportável.</span>
+          <span class="lang-en" style="display:none">A dashboard combining open global data with a deterministic simulation engine — all auditable and exportable.</span>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><div class="small"><span class="lang-pt">PIB Global (proxy)</span><span class="lang-en" style="display:none">Global GDP (proxy)</span></div><div id="gdpPill" class="stat-big">US$ 100 tri</div></div>
+          <div class="kpi"><div class="small"><span class="lang-pt">Emissões (Mt CO₂/ano)</span><span class="lang-en" style="display:none">Emissions (Mt CO₂/yr)</span></div><div id="co2Pill" class="stat-big">37,000</div></div>
+          <div class="kpi"><div class="small"><span class="lang-pt">Empregos renováveis (M)</span><span class="lang-en" style="display:none">Renewable jobs (M)</span></div><div id="jobsPill" class="stat-big">13.7 M</div></div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <button class="btn primary" onclick="scrollToSection('sim')"><span class="lang-pt">Ver Simulador</span><span class="lang-en" style="display:none">View Simulator</span></button>
+          <button class="btn" onclick="scrollToSection('contato')"><span class="lang-pt">Contato</span><span class="lang-en" style="display:none">Contact</span></button>
+          <button class="btn" onclick="toggleAssumptions()"><span class="lang-pt">Fontes</span><span class="lang-en" style="display:none">Sources</span></button>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div style="padding:12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.03)">
+          <div class="small"><span class="lang-pt">Demo — Mapa & Resumo</span><span class="lang-en" style="display:none">Demo — Map & Summary</span></div>
+          <div class="chart-box" style="margin-top:12px">Mapa Interativo (Mock)</div>
+          <div style="margin-top:12px;color:var(--muted);font-size:13px"><span class="lang-pt">Exportação de snapshots pronta.</span><span class="lang-en" style="display:none">Snapshot export ready.</span></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- PROBLEMA -->
+    <section id="problema" class="card">
+      <h2><span class="lang-pt">O Problema Global</span><span class="lang-en" style="display:none">The Global Problem</span></h2>
+      <div class="small"><span class="lang-pt">Decisões cruciais são tomadas sem visão sistêmica — dados fragmentados e modelos tendenciosos.</span><span class="lang-en" style="display:none">Critical decisions are made without systemic vision — fragmented data and biased models.</span></div>
+      <ul style="margin-top:12px;line-height:1.6">
+        <li><strong><span class="lang-pt">Dados fragmentados</span><span class="lang-en" style="display:none">Fragmented data</span>:</strong> <span class="lang-pt">múltiplas fontes e formatos.</span><span class="lang-en" style="display:none">multiple sources and formats.</span></li>
+        <li><strong><span class="lang-pt">Vieses institucionais</span><span class="lang-en" style="display:none">Institutional biases</span>:</strong> <span class="lang-pt">relatórios que favorecem agendas.</span><span class="lang-en" style="display:none">reports favoring agendas.</span></li>
+        <li><strong><span class="lang-pt">Decisões lentas</span><span class="lang-en" style="display:none">Slow decisions</span>:</strong> <span class="lang-pt">ausência de simulações robustas.</span><span class="lang-en" style="display:none">lack of robust simulations.</span></li>
+      </ul>
+    </section>
+
+    <!-- SOLUÇÃO -->
+    <section id="solucao" class="card">
+      <h2><span class="lang-pt">A Solução — Axiom Core</span><span class="lang-en" style="display:none">The Solution — Axiom Core</span></h2>
+      <div class="small"><span class="lang-pt">Um núcleo científico auditável que permite simular políticas e investimentos com alta fidelidade.</span><span class="lang-en" style="display:none">An auditable scientific core that enables high-fidelity simulation of policies and investments.</span></div>
+
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:12px;margin-top:12px">
+        <div>
+          <h3 style="margin-top:0"><span class="lang-pt">O que fazemos</span><span class="lang-en" style="display:none">What we do</span></h3>
+          <ol style="line-height:1.6">
+            <li><strong><span class="lang-pt">Integramos</span><span class="lang-en" style="display:none">Integrate</span></strong> <span class="lang-pt">dados públicos validados.</span><span class="lang-en" style="display:none">validated public data.</span></li>
+            <li><strong><span class="lang-pt">Executamos</span><span class="lang-en" style="display:none">Run</span></strong> <span class="lang-pt">simulações determinísticas e auditáveis.</span><span class="lang-en" style="display:none">deterministic & auditable simulations.</span></li>
+            <li><strong><span class="lang-pt">Fornecemos</span><span class="lang-en" style="display:none">Provide</span></strong> <span class="lang-pt">KPIs acionáveis.</span><span class="lang-en" style="display:none">actionable KPIs.</span></li>
+          </ol>
+        </div>
+        <div>
+          <div class="small"><strong><span class="lang-pt">Diferencial</span><span class="lang-en" style="display:none">Differentiator</span></strong>
+            <div><span class="lang-pt">Motor determinístico + proveniência de dados + UX para decisores.</span><span class="lang-en" style="display:none">Deterministic engine + provenance + UX for decision-makers.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PILARES -->
+    <section class="card">
+      <h2><span class="lang-pt">Os 4 Pilares</span><span class="lang-en" style="display:none">The 4 Pillars</span></h2>
+      <div class="pilares">
+        <div class="pillar">
+          <h3><span class="lang-pt">Nexus</span><span class="lang-en" style="display:none">Nexus</span></h3>
+          <div class="small"><span class="lang-pt">Objetivo: Modelar decisões geopolíticas em tempo real e identificar trade-offs.</span><span class="lang-en" style="display:none">Goal: Model geopolitical decisions in real-time and identify trade-offs.</span></div>
+        </div>
+        <div class="pillar">
+          <h3><span class="lang-pt">Theia</span><span class="lang-en" style="display:none">Theia</span></h3>
+          <div class="small"><span class="lang-pt">Objetivo: Otimizar água, energia e alimentos como sistema único.</span><span class="lang-en" style="display:none">Goal: Optimize water, energy and food as a single system.</span></div>
+        </div>
+        <div class="pillar">
+          <h3><span class="lang-pt">Prometheus</span><span class="lang-en" style="display:none">Prometheus</span></h3>
+          <div class="small"><span class="lang-pt">Objetivo: Acelerar descobertas científicas com experimentos virtuais.</span><span class="lang-en" style="display:none">Goal: Speed up discoveries with virtual experiments.</span></div>
+        </div>
+        <div class="pillar">
+          <h3><span class="lang-pt">Eudaimonia</span><span class="lang-en" style="display:none">Eudaimonia</span></h3>
+          <div class="small"><span class="lang-pt">Objetivo: Prever riscos sanitários e promover bem-estar coletivo.</span><span class="lang-en" style="display:none">Goal: Predict health risks and promote collective well-being.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIMULADOR -->
+    <section id="sim" class="card">
+      <h2><span class="lang-pt">Simulador Global — Rode Cenários</span><span class="lang-en" style="display:none">Global Simulator — Run Scenarios</span></h2>
+      <div class="small"><span class="lang-pt">Simulações determinísticas com suposições visíveis e exportáveis.</span><span class="lang-en" style="display:none">Deterministic simulations with visible & exportable assumptions.</span></div>
+
+      <div class="sim-grid" style="margin-top:12px">
+        <!-- controls -->
+        <div>
+          <label for="scenarioSelect"><span class="lang-pt">Cenário</span><span class="lang-en" style="display:none">Scenario</span></label>
+          <select id="scenarioSelect">
+            <option value="solar">Energia Solar — Expansão</option>
+            <option value="carbon">Imposto de Carbono</option>
+            <option value="agri">Agricultura Sustentável</option>
+            <option value="pand">Investimento em Saúde</option>
+          </select>
+
+          <label for="intensity"><span class="lang-pt">Intensidade (%)</span><span class="lang-en" style="display:none">Intensity (%)</span></label>
+          <input id="intensity" type="range" min="0" max="100" value="30">
+
+          <label for="duration"><span class="lang-pt">Duração (anos)</span><span class="lang-en" style="display:none">Duration (years)</span></label>
+          <!-- ensure number input is readable (not too dark) -->
+          <input id="duration" type="number" min="1" max="50" value="10" style="background:rgba(255,255,255,0.04);color:inherit">
+
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn primary" id="runSimBtn">▶ <span class="lang-pt">Rodar</span><span class="lang-en" style="display:none">Run</span></button>
+            <button class="btn" id="resetSimBtn"><span class="lang-pt">Reset</span><span class="lang-en" style="display:none">Reset</span></button>
+            <button class="btn" id="assumeBtn"><span class="lang-pt">Suposições</span><span class="lang-en" style="display:none">Assumptions</span></button>
+          </div>
+
+          <div id="assumptions" class="assumptions" aria-hidden="true">
+            <strong><span class="lang-pt">Suposições & Fontes</span><span class="lang-en" style="display:none">Assumptions & Sources</span></strong>
+            <ul>
+              <li><span class="lang-pt">Dados CO₂: Our World in Data (OWID) – fallback local se CORS bloquear.</span><span class="lang-en" style="display:none">CO₂ data: Our World in Data (OWID) — local fallback if CORS blocks.</span></li>
+              <li><span class="lang-pt">PIB global: proxy conservador (editable no código).</span><span class="lang-en" style="display:none">Global GDP: conservative proxy (editable in code).</span></li>
+              <li><span class="lang-pt">Incerteza padrão visualizada: ±10%.</span><span class="lang-en" style="display:none">Default uncertainty visualized: ±10%.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- preview -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="small"><span class="lang-pt">Visão Geral</span><span class="lang-en" style="display:none">Overview</span></div>
+              <div id="scenarioTitle" style="font-weight:800">Energia Solar — Expansão</div>
+            </div>
+            <div><button class="btn" id="exportSimBtn"><span class="lang-pt">Exportar CSV</span><span class="lang-en" style="display:none">Export CSV</span></button></div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <div style="flex:1;min-width:160px" class="info"><div class="small"><span class="lang-pt">Impacto PIB (últ. ano)</span><span class="lang-en" style="display:none">GDP impact (last year)</span></div><div id="pibImpact" class="stat-big">—</div></div>
+            <div style="flex:1;min-width:160px" class="info"><div class="small"><span class="lang-pt">Emissões evitadas</span><span class="lang-en" style="display:none">Emissions avoided</span></div><div id="co2Impact" class="stat-big">—</div></div>
+            <div style="flex:1;min-width:160px" class="info"><div class="small"><span class="lang-pt">Empregos (líquido)</span><span class="lang-en" style="display:none">Jobs (net)</span></div><div id="jobsImpact" class="stat-big">—</div></div>
+          </div>
+
+          <div style="margin-top:12px" class="chart-box" id="chartArea">Gráfico (após rodar)</div>
+        </div>
+
+        <!-- history / cost -->
+        <div>
+          <div class="small"><span class="lang-pt">Última simulação</span><span class="lang-en" style="display:none">Last simulation</span></div>
+          <div style="margin-top:10px"><strong><span class="lang-pt">Custo estimado</span><span class="lang-en" style="display:none">Estimated cost</span></strong><div id="costEst" style="margin-top:6px;font-weight:800">—</div></div>
+          <div style="margin-top:12px"><button class="btn" id="showHistoryBtn"><span class="lang-pt">Histórico</span><span class="lang-en" style="display:none">History</span></button></div>
+          <div id="simHistory" style="margin-top:10px;max-height:200px;overflow:auto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INVESTIDORES / CONTACT -->
+    <section id="contato" class="card">
+      <h2><span class="lang-pt">Investidores & Contato</span><span class="lang-en" style="display:none">Investors & Contact</span></h2>
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:12px;align-items:start">
+        <div>
+          <form id="investForm">
+            <label><span class="lang-en" style="display:none">Investors & Contact</span></h2>
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:12px;align-items:start">
+        <div>
+          <form id="investForm">
+            <label><span class="lang-pt">Nome / Fundo</span><span class="lang-en" style="display:none">Name / Fund</span></label>
+            <input id="invName" type="text" placeholder="Ex: Fundo Horizonte" required>
+
+            <label><span class="lang-pt">Email</span><span class="lang-en" style="display:none">Email</span></label>
+            <input id="invEmail" type="email" placeholder="contato@fundo.com" required>
+
+            <label><span class="lang-pt">Ticket estimado (US$)</span><span class="lang-en" style="display:none">Estimated ticket (US$)</span></label>
+            <input id="invTicket" type="number" min="1" placeholder="1000000" required>
+
+            <label><span class="lang-pt">Tese / Comentário</span><span class="lang-en" style="display:none">Thesis / Note</span></label>
+            <textarea id="invNote" placeholder="Por que investir?"></textarea>
+
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <button type="submit" class="btn primary"><span class="lang-pt">Manifestar Interesse</span><span class="lang-en" style="display:none">Express interest</span></button>
+              <button type="button" class="btn" id="clearInvestorBtn"><span class="lang-pt">Limpar</span><span class="lang-en" style="display:none">Clear</span></button>
+            </div>
+          </form>
+        </div>
+
+        <div>
+          <div class="small"><span class="lang-pt">Investidores interessados</span><span class="lang-en" style="display:none">Interested investors</span></div>
+          <div id="investList" class="inv-list"></div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn" id="seedDemoBtn"><span class="lang-pt">Adicionar demo</span><span class="lang-en" style="display:none">Add demo</span></button>
+            <button class="btn" id="exportInvBtn"><span class="lang-pt">Exportar JSON</span><span class="lang-en" style="display:none">Export JSON</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="small"><span class="lang-pt">Founder & CEO: Jardel Miguel Lopes — </span><a href="mailto:jardelmiguellopes03@gmail.com" style="color:var(--neon)">jardelmiguellopes03@gmail.com</a><span class="lang-en" style="display:none">Founder & CEO: Jardel Miguel Lopes — </span></div>
+    </section>
+
+    <footer class="small">© 2025 Axiom Core — Protótipo. <span class="lang-pt">Material confidencial.</span><span class="lang-en" style="display:none">Confidential material.</span></footer>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- peaceful sound -->
+  <audio id="peaceSound" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c7c4b9a57f.mp3?filename=calm-bell-111821.mp3"></audio>
+
+<script>
+/* ====================
+   LANG SWITCH (PT default)
+   - toggles elements with classes .lang-pt and .lang-en
+   - persists choice in localStorage
+   ==================== */
+(function(){
+  const btnPT = document.getElementById('btnPT');
+  const btnEN = document.getElementById('btnEN');
+  const LS_KEY = 'axiom_lang';
+  function setLang(lang){
+    const showPT = lang==='pt';
+    document.querySelectorAll('.lang-pt').forEach(el=> el.style.display = showPT ? '' : 'none');
+    document.querySelectorAll('.lang-en').forEach(el=> el.style.display = showPT ? 'none' : '');
+    btnPT.classList.toggle('active', showPT);
+    btnEN.classList.toggle('active', !showPT);
+    localStorage.setItem(LS_KEY, lang);
+  }
+  // initial
+  const saved = localStorage.getItem(LS_KEY) || 'pt';
+  setLang(saved);
+  btnPT.addEventListener('click', ()=> setLang('pt'));
+  btnEN.addEventListener('click', ()=> setLang('en'));
+})();
+
+/* ====================
+   Utilities
+   ==================== */
+function scrollToSection(id){ const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); }
+function showToast(msg, t=1800){ const el=document.getElementById('toast'); el.textContent = msg; el.style.display='block'; clearTimeout(el._h); el._h = setTimeout(()=> el.style.display='none', t); }
+function nice(n,dec=0){ if(!isFinite(n)) return '—'; return Number(n).toLocaleString('en-US',{minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+
+/* ====================
+   Deterministic Simulator (no randomness)
+   - stable outputs for same inputs
+   - proxies are editable inside this file
+   ==================== */
+
+/* proxies (editable) */
+const GLOBAL_GDP_USD = 100_000_000_000_000; // $100T proxy
+const GLOBAL_CO2_MT = 37_000; // Mt/year proxy
+const GLOBAL_JOBS_RENEW_M = 13.7; // million
+const DEFAULT_UNCERTAINTY = 0.10; // ±10%
+
+function baselinePibIndex(dur){
+  const arr=[]; let idx=100;
+  for(let y=1;y<=dur;y++){ idx *= 1.02; arr.push(Number(idx.toFixed(3))); }
+  return arr;
+}
+function baselineCo2Series(dur){
+  const arr=[]; let v=GLOBAL_CO2_MT;
+  for(let y=1;y<=dur;y++){ v *= 1 + 0.002; arr.push(Number(v.toFixed(2))); }
+  return arr;
+}
+function baselineJobsSeries(dur){
+  const arr=[]; let v = GLOBAL_JOBS_RENEW_M * 1000; // to k
+  for(let y=1;y<=dur;y++){ v *= 1.01; arr.push(Number(v.toFixed(2))); }
+  return arr;
+}
+
+function computeScenario(scenario,intensity,dur){
+  const baseP = baselinePibIndex(dur), baseC = baselineCo2Series(dur), baseJ = baselineJobsSeries(dur);
+  const out = {pib:[], co2:[], jobs:[]};
+  const scale = intensity/100;
+  for(let y=1;y<=dur;y++){
+    if(scenario==='solar'){
+      const addedPct = scale * 0.01 * y; // proxy
+      const pib = baseP[y-1] * (1 + addedPct);
+      const avoided = scale * y * 0.5; // Mt avoided proxy
+      const co2 = Math.max(0, baseC[y-1] - avoided);
+      const jobs = baseJ[y-1] + scale * y * 50; // k
+      out.pib.push(Number(pib.toFixed(3))); out.co2.push(Number(co2.toFixed(2))); out.jobs.push(Number(jobs.toFixed(2)));
+    } else if(scenario==='carbon'){
+      const reduction = Math.min(0.5, scale * 0.02 * y);
+      const co2 = baseC[y-1] * (1 - reduction);
+      const pib = baseP[y-1] * (1 - scale * 0.002 * Math.min(1, y/3));
+      const jobs = baseJ[y-1] * (1 - scale * 0.001 * y);
+      out.pib.push(Number(pib.toFixed(3))); out.co2.push(Number(co2.toFixed(2))); out.jobs.push(Number(jobs.toFixed(2)));
+    } else if(scenario==='agri'){
+      const avoided = scale * y * 0.2;
+      const co2 = Math.max(0, baseC[y-1] - avoided);
+      const pib = baseP[y-1] * (1 + scale * 0.001 * y);
+      const jobs = baseJ[y-1] + scale * y * 10;
+      out.pib.push(Number(pib.toFixed(3))); out.co2.push(Number(co2.toFixed(2))); out.jobs.push(Number(jobs.toFixed(2)));
+    } else { // pand
+      const pib = baseP[y-1] * (1 + scale * 0.0005 * Math.min(y,5));
+      const co2 = baseC[y-1] * (1 - scale * 0.0002 * y);
+      const jobs = baseJ[y-1] + scale * y * 5;
+      out.pib.push(Number(pib.toFixed(3))); out.co2.push(Number(co2.toFixed(2))); out.jobs.push(Number(jobs.toFixed(2)));
+    }
+  }
+  return out;
+}
+
+/* Chart */
+let simChart = null;
+function renderChart(series){
+  const labels = series.pib.map((_,i)=>`Ano ${i+1}`);
+  const ctx = document.createElement('canvas');
+  ctx.style.width = '100%';
+  ctx.style.height = '200px';
+  const chartArea = document.getElementById('chartArea');
+  chartArea.innerHTML = '';
+  chartArea.appendChild(ctx);
+  if(simChart) simChart.destroy();
+  simChart = new Chart(ctx.getContext('2d'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'PIB (índice)', data: series.pib, borderColor:'#00fff2', backgroundColor:'rgba(0,255,242,0.12)', tension:0.25, fill:true},
+        {label:'Emissões (Mt CO₂)', data: series.co2, borderColor:'#6b5bff', backgroundColor:'rgba(107,91,255,0.10)', tension:0.25, fill:true},
+        {label:'Empregos (k)', data: series.jobs, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.08)', tension:0.25, fill:true}
+      ]
+    },
+    options:{
+      responsive:true,
+      animation:{duration:700,easing:'easeOutQuart'},
+      plugins:{legend:{labels:{color:'#e6f7f6'}},tooltip:{mode:'index',intersect:false}},
+      scales:{ x:{ticks:{color:'#9fb3bf'},grid:{color:'rgba(255,255,255,0.03)'}}, y:{ticks:{color:'#9fb3bf'},grid:{color:'rgba(255,255,255,0.03)'}} }
+    }
+  });
+}
+
+/* animate numeric display (simple linear) */
+function animateValue(el, start, end, ms=800, decimals=0, suffix=''){
+  start = Number(start)||0; end = Number(end)||0;
+  const startT = performance.now();
+  function frame(now){
+    const p = Math.min((now - startT)/ms, 1);
+    const v = start + (end - start) * p;
+    el.textContent = nice(v, decimals) + (suffix?` ${suffix}`:'');
+    if(p < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* Run / Reset handlers (deterministic) */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const runBtn = document.getElementById('runSimBtn');
+  const resetBtn = document.getElementById('resetSimBtn');
+  const assumeBtn = document.getElementById('assumeBtn');
+  const scenarioSelect = document.getElementById('scenarioSelect');
+  const intensityEl = document.getElementById('intensity');
+  const durationEl = document.getElementById('duration');
+  const pibEl = document.getElementById('pibImpact');
+  const co2El = document.getElementById('co2Impact');
+  const jobsEl = document.getElementById('jobsImpact');
+  const costEl = document.getElementById('costEst');
+  const scenarioTitle = document.getElementById('scenarioTitle');
+
+  function updatePreviewTitle(){ 
+    const map = {
+      solar: {'pt':'Energia Solar — Expansão','en':'Solar Energy — Expansion'},
+      carbon: {'pt':'Imposto de Carbono','en':'Carbon Tax'},
+      agri: {'pt':'Agricultura Sustentável','en':'Sustainable Agriculture'},
+      pand: {'pt':'Investimento em Saúde','en':'Health Investment'}
+    };
+    const s = scenarioSelect.value;
+    const lang = localStorage.getItem('axiom_lang') || 'pt';
+    scenarioTitle.textContent = map[s][lang];
+  }
+  updatePreviewTitle();
+  scenarioSelect.addEventListener('change', updatePreviewTitle);
+  document.getElementById('intensity').addEventListener('input', ()=>{ /* live preview possible */ });
+  document.getElementById('duration').addEventListener('input', ()=>{ /* live preview possible */ });
+
+  runBtn.addEventListener('click', async ()=>{
+    const scenario = scenarioSelect.value;
+    const intensity = Number(intensityEl.value) || 0;
+    const duration = Math.max(1, Number(durationEl.value) || 1);
+    const series = computeScenario(scenario,intensity,duration);
+
+    // KPIs: take final year
+    const finalPib = series.pib[series.pib.length-1];
+    const finalCo2 = series.co2[series.co2.length-1];
+    const finalJobs = series.jobs[series.jobs.length-1];
+
+    // cost heuristic
+    let cost = 0;
+    if(scenario==='solar'){ cost = intensity * duration * 0.8 * 1_000_000; }
+    else if(scenario==='carbon'){ cost = intensity * duration * 0.4 * 1_000_000; }
+    else if(scenario==='agri'){ cost = intensity * duration * 0.6 * 1_000_000; }
+    else { cost = intensity * duration * 0.5 * 1_000_000; }
+
+    animateValue(pibEl, 100, finalPib, 900, 2, 'idx');
+    const co2Low = finalCo2 * (1 - DEFAULT_UNCERTAINTY);
+    const co2High = finalCo2 * (1 + DEFAULT_UNCERTAINTY);
+    animateValue(co2El, co2Low, co2High, 900, 0, 'Mt (±10%)');
+    animateValue(jobsEl, 0, finalJobs, 900, 0, 'k');
+    animateValue(costEl, 0, cost, 900, 0, 'US$');
+
+    renderChart(series);
+    // gentle peaceful sound
+    try{ await document.getElementById('peaceSound').play(); }catch(e){ /* autoplay may be blocked */ }
+
+    // save history
+    const simRec = {scenario,intensity,duration,ts:Date.now(),kpis:{pib:finalPib,co2:finalCo2,jobs:finalJobs,cost}};
+    const histKey = 'axiom_sims_v1';
+    const hist = JSON.parse(localStorage.getItem(histKey)||'[]');
+    hist.push(simRec);
+    localStorage.setItem(histKey, JSON.stringify(hist));
+    renderHistory();
+    // increment counter
+    const runsEl = document.getElementById('simRuns');
+    runsEl.textContent = Number(runsEl.textContent||0) + 1;
+    showToast('Simulação concluída');
+  });
+
+  resetBtn.addEventListener('click', ()=>{
+    intensityEl.value = 30; durationEl.value = 10; scenarioSelect.value='solar';
+    document.getElementById('pibImpact').textContent='—';
+    document.getElementById('co2Impact').textContent='—';
+    document.getElementById('jobsImpact').textContent='—';
+    document.getElementById('costEst').textContent='—';
+    document.getElementById('chartArea').innerHTML = 'Gráfico (após rodar)';
+    showToast('Reset ok');
+  });
+
+  assumeBtn.addEventListener('click', ()=> {
+    const a = document.getElementById('assumptions');
+    a.style.display = a.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // history UI
+  function renderHistory(){
+    const histKey = 'axiom_sims_v1';
+    const hist = JSON.parse(localStorage.getItem(histKey)||'[]');
+    const el = document.getElementById('simHistory');
+    el.innerHTML = '';
+    hist.slice().reverse().forEach(s=>{
+      const d = new Date(s.ts).toLocaleString();
+      const row = document.createElement('div');
+      row.style.padding = '8px'; row.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+      row.innerHTML = `<div style="font-weight:700">${s.scenario} — ${s.intensity}% • ${s.duration} anos</div><div style="font-size:12px;color:var(--muted)">KPIs: PIB ${nice(s.kpis.pib,2)} idx • CO₂ ${nice(s.kpis.co2,2)} Mt • Jobs ${nice(s.kpis.jobs,0)} k<br>${d}</div>`;
+      el.appendChild(row);
+    });
+  }
+  renderHistory();
+
+  // export sim CSV
+  document.getElementById('exportSimBtn').addEventListener('click', ()=>{
+    const histKey = 'axiom_sims_v1';
+    const hist = JSON.parse(localStorage.getItem(histKey)||'[]');
+    if(!hist.length){ showToast('Sem simulações para exportar'); return; }
+    let csv = 'scenario,intensity,duration,ts,pib,co2,jobs,cost\n';
+    hist.forEach(s => {
+      csv += `${s.scenario},${s.intensity},${s.duration},${new Date(s.ts).toISOString()},${s.kpis.pib},${s.kpis.co2},${s.kpis.jobs},${s.kpis.cost}\n`;
+    });
+    const blob = new Blob([csv], {type:'text/csv'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'simulations_export.csv'; a.click(); URL.revokeObjectURL(a.href);
+    showToast('CSV exportado');
+  });
+});
+
+/* ====================
+   INVESTORS (localStorage)
+   ==================== */
+(function(){
+  const invKey = 'axiom_inv_v1';
+  function loadInvestors(){ return JSON.parse(localStorage.getItem(invKey)||'[]'); }
+  function renderInvestors(){
+    const list = loadInvestors();
+    const el = document.getElementById('investList');
+    el.innerHTML = '';
+    list.slice().reverse().forEach(i=>{
+      const row = document.createElement('div');
+      row.className='inv-row';
+      row.innerHTML = `<div><strong>${i.name}</strong><div style="font-size:12px;color:var(--muted)">${i.email}</div></div>
+                       <div style="text-align:right"><div class="pill">US$ ${Number(i.ticket).toLocaleString()}</div><div style="font-size:12px;color:var(--muted)}">${new Date(i.ts).toLocaleString()}</div></div>`;
+      el.appendChild(row);
+    });
+  }
+  document.getElementById('investForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const n = document.getElementById('invName').value.trim();
+    const em = document.getElementById('invEmail').value.trim();
+    const t = Number(document.getElementById('invTicket').value) || 0;
+    const note = document.getElementById('invNote').value.trim();
+    if(!n || !em || t <= 0){ showToast('Preencha nome, email e ticket'); return; }
+    const list = loadInvestors();
+    list.push({name:n,email:em,ticket:t,note,ts:Date.now()});
+    localStorage.setItem(invKey, JSON.stringify(list));
+    renderInvestors();
+    document.getElementById('investForm').reset();
+    showToast('Investidor registrado (soft-commit)');
+  });
+  document.getElementById('clearInvestorBtn').addEventListener('click', ()=>{
+    document.getElementById('investForm').reset();
+  });
+  document.getElementById('seedDemoBtn').addEventListener('click', ()=>{
+    const list = loadInvestors();
+    list.push({name:'Fundo Horizonte',email:'hf@demo.com',ticket:10000000, note:'Seed strategic',ts:Date.now()-10000000});
+    list.push({name:'Family Office Nova',email:'fo@demo.com',ticket:5000000,note:'Impact thesis',ts:Date.now()-5000000});
+    localStorage.setItem(invKey, JSON.stringify(list));
+    renderInvestors();
+    showToast('Demo investors adicionados');
+  });
+  document.getElementById('exportInvBtn').addEventListener('click', ()=>{
+    const list = loadInvestors();
+    const blob = new Blob([JSON.stringify({investors:list,generatedAt:new Date().toISOString()}, null, 2)], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'investors_export.json'; a.click(); URL.revokeObjectURL(a.href);
+    showToast('Investors JSON exported');
+  });
+  renderInvestors();
+})();
+
+/* ====================
+   small helpers
+   ==================== */
+function toggleAssumptions(){ const a=document.getElementById('assumptions'); a.style.display = a.style.display==='block' ? 'none' : 'block'; }
+</script>
+</body>
+</html>
